@@ -11,29 +11,40 @@ Overall plan for the contents of `/skills`. This **replaces** the current
 | `recon`       | Map how this codebase works in a feature area                 | Every time you touch unfamiliar code      |
 | `research`    | Evaluate external options, libraries, approaches; spikes      | When the path isn't obvious               |
 | `tdd`         | Inner loop: red-green-refactor                                | Writing any behavior                      |
-| `testing`     | Test strategy across the pyramid incl. browser/e2e + flaky triage | Choosing what to verify; outer-loop checks |
+| `testing`     | Test strategy across the pyramid + diagnose any failure to root cause | Choosing what to verify; outer-loop checks; debugging |
 | `review` | Critical read of a diff                                       | Giving or prepping for review             |
 | `pr` | Drive an open PR to merge: feedback, rebase, conflicts        | The merge bottleneck                      |
 
 ### How they chain
 
 ```
-recon ─┐                          ┌──── review loop ────┐
-       ├─► scope ──[approval]──► tdd ◄─► testing ─► review ─► pr
-research ┘         gate            ▲                  │
-                                   └──────────────────┘
+recon ─┐
+       ├─► scope ──[approval gate]──► tdd ⇄ testing ─► review ─► pr
+research ┘
 ```
 
-`recon` and `research` are inputs to `scope`. `scope` produces the units of work
-that `tdd` implements. `testing` informs what `tdd` writes and adds outer-loop
-coverage. `review` reads the resulting diff; `pr` lands it.
+- `⇄`  `tdd` is the inner loop; `testing` is the outer loop — test *strategy*
+  *and* failure *diagnosis*.
+- **Review loop:** `review` ─► `tdd` — review either approves or sends the diff
+  back with feedback; iterate until correct. Review is not one-shot.
+- **Diagnosis loop:** any failure ─► `testing` (find root cause) ─► `tdd` (fix
+  test-first). Failures originate anywhere — an unexpected red in `tdd`, a flaky
+  test in `testing`, a bug `review` spots, or CI red on a `pr`.
 
-Two gates, both adopted from the open-swe reference (below):
+`recon` and `research` are inputs to `scope`. `scope` produces the units of work
+that `tdd` implements. `testing` informs what `tdd` writes, adds outer-loop
+coverage, and owns diagnosis when something fails. `review` reads the resulting
+diff; `pr` lands it.
+
+Three control structures, the first two adopted from the open-swe reference (below):
 
 - **Approval gate** between `scope` and `tdd` — the plan is reviewed and approved
   *before any code is written*. No silent "code first, fix later".
 - **Review loop** — `review` either approves or sends the diff back to `tdd`
-  with feedback; iterate until correct. Review is not one-shot.
+  with feedback; iterate until correct.
+- **Diagnosis loop** — a failure is never patched at the symptom. `testing`
+  drives it to a root cause, then `tdd` reproduces it with a failing test and
+  fixes it. Flaky-test triage is one special case of this loop.
 
 ### Reference: langchain-ai/open-swe
 
@@ -222,6 +233,8 @@ SKILL.md should contain:
   - Defer "what kinds of tests / how much" to `testing`.
   - When done, the diff is ready for `review`.
   - When `review` returns feedback, re-enter the loop here (red-green per item).
+  - When `testing` hands back a diagnosed root cause, re-enter the loop: the
+    failing test reproduces the bug *first*, then the fix.
   - Only act on the unit currently approved in the `scope` plan — re-check before
     starting each unit in case intent changed.
 
@@ -232,8 +245,10 @@ Possible supporting file: `tdd/defense-in-depth.md` (carry over from
 
 ## testing
 
-**Purpose:** Outer-loop test *strategy* — choosing what to verify across the
-pyramid (unit / integration / browser-e2e) and triaging flaky tests.
+**Purpose:** The outer loop around `tdd`. Two jobs: (1) test *strategy* —
+choosing what to verify across the pyramid (unit / integration / browser-e2e),
+and (2) *diagnosis* — driving any failure (test failure, bug, regression, flaky
+test, CI red) to its root cause before a fix is attempted.
 
 SKILL.md should contain:
 
@@ -242,25 +257,38 @@ SKILL.md should contain:
   - Apply the pyramid — many fast unit tests, fewer integration, few e2e.
   - Cover the meaningful paths: happy path, boundaries, error paths, regressions.
   - Set up browser/e2e coverage for critical user journeys only.
-  - Triage flaky tests: quarantine, root-cause, fix or delete.
+  - Diagnose failures to root cause; hand the fix to `tdd`.
 - **Rules**
   - Test behavior and contracts, not implementation detail.
   - e2e is expensive — reserve for journeys that unit/integration can't cover.
-  - A flaky test is a bug: fix the root cause or remove it; never just retry-loop.
   - Coverage % is a smell detector, not a goal.
   - Every fixed bug leaves a regression test behind.
-- **Flaky-triage sub-loop**
-  1. Reproduce — run repeatedly, identify nondeterminism (time, order, async, network).
-  2. Quarantine if blocking others, with a tracking note.
-  3. Fix the root cause (control the clock, await properly, isolate state).
-  4. Re-run many times to confirm stable.
+  - **No fix without a root cause.** A symptom patch is a failure, not a fix.
+  - One hypothesis, one minimal change at a time — never bundle fixes.
+  - 3+ failed fixes means the architecture is wrong, not the hypothesis — stop
+    and escalate; don't attempt fix #4.
+- **Diagnosis sub-loop** (run before any fix; adapted from open-swe + superpowers)
+  1. Read the failure carefully — message, stack, exit code. Reproduce it
+     consistently; if you can't, gather data, don't guess.
+  2. Check what recently changed — diff, new deps, config, environment.
+  3. In multi-component systems, instrument each boundary to find *which* layer
+     fails before investigating *why*.
+  4. Trace the bad value back to its source; fix at the source, not the symptom.
+  5. State one hypothesis; test it with the smallest possible change.
+  6. Hand the confirmed root cause to `tdd`: failing test reproduces it first,
+     then the fix.
+- **Flaky tests** — a special case of the diagnosis loop. A flaky test is a bug:
+  reproduce by running repeatedly to expose the nondeterminism (time, ordering,
+  async, shared state); quarantine with a tracking note if it blocks others;
+  fix the root cause; re-run many times to confirm stable. Never just retry-loop.
 - **Output template**
   - Risks → chosen test level (table)
   - Gaps in current coverage
   - e2e journeys worth automating
-  - Flaky tests + disposition
+  - Diagnosis: failure → root cause → handoff to `tdd` (or flaky disposition)
 
-Possible supporting files: `testing/browser-e2e.md`, `testing/flaky-triage.md`.
+Possible supporting files: `testing/browser-e2e.md`, `testing/debugging.md`
+(the four-phase root-cause method in full), `testing/flaky-triage.md`.
 
 ---
 
@@ -327,8 +355,9 @@ SKILL.md should contain:
 
 ## Open questions for you
 
-- Keep `ci` as its own skill, or fold CI-failure triage into `testing` /
-  `pr` as planned above?
+- ~~Keep `ci` as its own skill?~~ **Resolved:** no separate `ci` skill, and no
+  separate `debugging` skill. CI failures and bugs enter the `testing` diagnosis
+  loop; `pr` routes CI red into it; `tdd` owns the test-first fix.
 - Do we want a SQLite/task-state mechanism like `skills-old/pm-agent` had, or is
   `scope` purely a thinking tool that emits markdown?
 - Should `scope` write its units somewhere durable (issues, a file), or just output?
