@@ -1,0 +1,5 @@
+pre-push:
+  parallel: false
+  commands:
+    validate-skills:
+      run: bash scripts/validate.sh
