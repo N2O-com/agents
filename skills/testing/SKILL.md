@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Choose test strategy across the pyramid — unit, integration, browser/e2e — and triage flaky tests. Use when deciding what to verify, planning outer-loop coverage, or chasing a nondeterministic test. Triggers: test strategy, what should we test, e2e tests, integration tests, flaky test, test is failing intermittently, coverage gaps.
+description: Choose test strategy across the pyramid — unit, integration, browser/e2e — and triage flaky tests. Use when deciding what to verify, planning outer-loop coverage, or chasing a nondeterministic test. Triggers — test strategy, what should we test, e2e tests, integration tests, flaky test, test is failing intermittently, coverage gaps.
 ---
 
 # Testing

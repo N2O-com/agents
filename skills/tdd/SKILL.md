@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Drive strict red-green-refactor test-driven development for any behavior change. Use when implementing a new behavior, fixing a bug, or refactoring code that needs coverage. Triggers: implement, write this feature, fix this bug, add behavior, tdd, write a test first, red green refactor.
+description: Drive strict red-green-refactor test-driven development for any behavior change. Use when implementing a new behavior, fixing a bug, or refactoring code that needs coverage. Triggers — implement, write this feature, fix this bug, add behavior, tdd, write a test first, red green refactor.
 ---
 
 # TDD

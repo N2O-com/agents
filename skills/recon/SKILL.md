@@ -1,6 +1,6 @@
 ---
 name: recon
-description: Map how a codebase works in a feature area before changing it. Use when touching unfamiliar code, before planning a change, or when assumptions about an area need verifying. Triggers: how does this work, understand the codebase, explore the code, where is X handled, trace this flow, get up to speed.
+description: Map how a codebase works in a feature area before changing it. Use when touching unfamiliar code, before planning a change, or when assumptions about an area need verifying. Triggers — how does this work, understand the codebase, explore the code, where is X handled, trace this flow, get up to speed.
 ---
 
 # Recon

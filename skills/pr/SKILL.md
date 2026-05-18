@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Drive an already-open pull request through to merge — addressing review feedback, rebasing, resolving conflicts, and keeping CI green. Use when a PR is open and stuck at the merge bottleneck. Triggers: get this PR merged, address review comments, resolve conflicts, rebase the branch, CI is failing on my PR, drive this to merge.
+description: Drive an already-open pull request through to merge — addressing review feedback, rebasing, resolving conflicts, and keeping CI green. Use when a PR is open and stuck at the merge bottleneck. Triggers — get this PR merged, address review comments, resolve conflicts, rebase the branch, CI is failing on my PR, drive this to merge.
 ---
 
 # PR Shepherd

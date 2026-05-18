@@ -1,6 +1,6 @@
 ---
 name: scope
-description: Decompose a feature request or work-in-progress diff into the smallest sequence of independently shippable units, then stop for plan approval before any code is written. Use at the start of a task or before opening a large PR. Triggers: break this down, decompose, plan this work, how should we split, scope this, too big for one PR.
+description: Decompose a feature request or work-in-progress diff into the smallest sequence of independently shippable units, then stop for plan approval before any code is written. Use at the start of a task or before opening a large PR. Triggers — break this down, decompose, plan this work, how should we split, scope this, too big for one PR.
 ---
 
 # Scope

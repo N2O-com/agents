@@ -1,6 +1,6 @@
 ---
 name: research
-description: Evaluate external options — libraries, services, architectural approaches — and run throwaway spikes when the path is not obvious. Use when choosing a dependency or approach, comparing alternatives, or de-risking an unknown. Triggers: which library, evaluate options, compare approaches, should we use, spike, prototype, what is the best way to.
+description: Evaluate external options — libraries, services, architectural approaches — and run throwaway spikes when the path is not obvious. Use when choosing a dependency or approach, comparing alternatives, or de-risking an unknown. Triggers — which library, evaluate options, compare approaches, should we use, spike, prototype, what is the best way to.
 ---
 
 # Research

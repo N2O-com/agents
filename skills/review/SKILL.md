@@ -1,6 +1,6 @@
 ---
 name: review
-description: Critically read a diff for correctness, edge cases, security, and test coverage — then approve or send it back with concrete feedback. Use when reviewing a PR or self-reviewing before requesting review. Triggers: review this, code review, review my changes, check this diff, is this ready for review, look over this PR.
+description: Critically read a diff for correctness, edge cases, security, and test coverage — then approve or send it back with concrete feedback. Use when reviewing a PR or self-reviewing before requesting review. Triggers — review this, code review, review my changes, check this diff, is this ready for review, look over this PR.
 ---
 
 # Code Review
