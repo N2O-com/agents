@@ -20,14 +20,17 @@ assumptions.
    event subscribers.
 2. Trace one representative flow end to end; note every layer it crosses.
 3. Identify the data model and where state is persisted.
-4. Find the existing tests for the area — they document intended behavior.
+4. Find the existing tests for the area — they document intended behavior. If
+   no tests exist for this area, note that explicitly as a finding. It changes
+   how `plan` and `tdd` proceed: there is no in-area pattern to mirror, so the
+   test approach must be drawn from elsewhere in the codebase.
 5. Note the conventions actually used here: error handling, logging, naming,
    recurring patterns.
 6. List integration points and external dependencies.
-7. Check `AGENTS.md` against what you observed. If documented conventions have
-   drifted from reality, flag it or propose an update. (`AGENTS.md` is the
-   cross-tool conventions standard; treat any agent-specific file as a legacy
-   alias.)
+7. Cross-check `AGENTS.md` against what you observed. The code is the truth;
+   `AGENTS.md` is a claim about the code. If they disagree, flag the drift
+   explicitly in your output — name the convention, where it claims to apply,
+   and what the code actually does. Do not silently follow stale documentation.
 
 ## Rules
 
@@ -42,7 +45,9 @@ assumptions.
 - Area + entry points
 - Flow walkthrough — the layers, in order
 - Data model & state
+- Existing tests — or an explicit "no tests in this area"
 - Conventions to follow
 - Integration points
+- `AGENTS.md` drift, if any
 - Landmines / surprises
 - Open questions
