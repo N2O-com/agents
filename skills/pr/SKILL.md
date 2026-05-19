@@ -1,38 +1,81 @@
 ---
 name: pr
-description: Drive an already-open pull request through to merge — addressing review feedback, rebasing, resolving conflicts, and keeping CI green. Use when a PR is open and stuck at the merge bottleneck. Triggers — get this PR merged, address review comments, resolve conflicts, rebase the branch, CI is failing on my PR, drive this to merge.
+description: Open a pull request once an independent reviewer has approved the diff. Compose the branch name, commit message, PR description, and ticket link so a human landing on the PR cold can understand it. Use only after the reviewer agent returns approve via `review` — never directly after `tdd`. Triggers — open a PR, create the PR, push this up for review, write the PR description, link the ticket.
 ---
 
-# PR Shepherd
+# PR
 
-Drive an open PR through the merge bottleneck: feedback, rebase, conflicts, CI.
+After the reviewer agent has approved the diff via `review`, the work needs
+to leave the builder's sandbox as a pull request a human can read. This
+skill produces the artifacts a human reviewer landing on the PR cold needs:
+a branch, a commit, a description, and a ticket link.
 
 ## When to Use
 
-A PR is open and needs to land — review threads to resolve, a stale branch,
-conflicts, or red CI.
+Two preconditions must both be true, in this order:
+
+1. The gate is clean — lint, typecheck, and tests all pass.
+2. The reviewer agent has read the diff via `review` and returned an
+   **approve** verdict.
+
+The builder does **not** run `pr` immediately after `tdd`. A clean gate
+triggers `review`, not `pr`. Only after an independent reviewer has
+approved does control return to the builder for `pr`.
 
 ## Steps
 
-1. Check PR status: review comments, CI state, mergeability, branch staleness.
-2. Triage review feedback — for each item: address it, push back with reasoning,
-   or explicitly defer it. Say which.
-3. Make changes as focused follow-up commits; reply to each thread.
-4. Rebase or merge the base branch when behind; resolve conflicts deliberately.
-5. Re-run CI; if it fails, fix the root cause.
-6. Re-request review. Repeat until merged.
+1. **Branch.** You should be on a feature branch, not the main branch.
+   Name the branch after the ticket or task — short, lowercase, hyphenated,
+   recognizable later.
+2. **Commit.** Stage only the files this task changed. Commit with a
+   one-line imperative summary ("add", "fix", "rename"). If extra context
+   is useful, leave a blank line and add a short paragraph explaining why.
+3. **Push.** Push the branch to the remote.
+4. **Write the PR description.** Three to five lines:
+   - What changed, in one or two sentences.
+   - A link to the ticket or task.
+   - The approach, in one sentence — why this shape, not another.
+   The description is for the reviewer; it is not a design doc.
+5. **Open the PR.** Target the correct base branch. The ticket is linked
+   in the description; the tracker should reflect the work.
 
 ## Rules
 
-- Every review thread gets a resolution — fixed, answered, or explicitly deferred.
-- Resolve conflicts by understanding both sides; never blindly take one.
-- Keep PR scope fixed — new ideas become new issues, not new commits here.
-- Do not merge with red or skipped CI, or unresolved blocking comments.
-- Keep the PR description current as the diff evolves.
+- One logical change per PR. If the diff covers two unrelated changes,
+  that is two PRs. Do not bundle.
+- Never commit or push to the main branch directly. The PR is the only
+  path changes land.
+- Stage only the files the plan said you would touch, plus anything
+  `review` explicitly approved. If staged files extend further than that,
+  stop and reconcile — either the plan was wrong or you drifted.
+- Commit messages are imperative, not past tense. They describe the
+  change, not the journey of writing it.
+- The PR description summarizes; it does not re-derive. The reasoning
+  lived in `plan`, the implementation lived in `tdd`. The description
+  points at them, it does not replay them.
+
+## Traps to avoid
+
+- **"I just finished `tdd` and the gate is clean — time to open the PR."**
+  No. A clean gate hands the diff to the reviewer agent, not to `pr`. A
+  separate reviewer reads the diff first and either approves or sends it
+  back. `pr` runs only after an approve verdict comes back. If you find
+  yourself here without one, stop — you are about to skip `review`.
+- **"While I'm here, let me fix this small unrelated thing."** No. Open
+  a separate PR. Bundling unrelated changes makes the review harder, the
+  diff harder to reason about, and the history harder to bisect when
+  something regresses later.
+- **"More context in the description is better."** No. A short, focused
+  description gets read. A long one gets skimmed. Three to five lines
+  beats three to five paragraphs.
+- **"The diff is small enough that the reviewer will figure it out."** No.
+  The reviewer does not know what `tdd` produced or why. Five lines of
+  context costs you nothing and saves time for every reviewer who reads
+  the PR.
 
 ## Output
 
-- Current status — CI / reviews / conflicts
-- Feedback items + disposition
-- Actions taken this pass
-- Blockers / what is needed to merge
+- Branch name
+- Commit message(s)
+- PR description — what changed, ticket link, approach
+- Link to the opened PR
